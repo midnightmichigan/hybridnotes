@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HybridNotes — #BuildHybridAI demo</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:760px;margin:2rem auto;padding:0 1rem;line-height:1.5}
+textarea{width:100%;box-sizing:border-box}
+button{padding:.5rem 1rem;font-size:1rem;cursor:pointer}
+#route{font-weight:600}
+pre{background:#f4f4f4;padding:1rem;white-space:pre-wrap}
+.note{color:#555;font-size:.9rem}
+</style>
+<!-- Optional: uncomment after creating firebase-config.js from firebase-config.example.js
+<script src="firebase-config.js"></script> -->
+</head>
+<body>
+<h1>HybridNotes</h1>
+<p>Paste a note or document. Short text is summarized <strong>on-device</strong>
+(private, offline, free); long documents route to the <strong>cloud</strong>,
+with automatic fallback if the on-device model is unavailable. That routing
+policy is the same one unit-tested in <code>src/hybrid_router.py</code> (6/6).</p>
+<textarea id="input" rows="10" placeholder="Paste text to summarize…"></textarea>
+<p><button id="go">Summarize</button> <span id="route"></span></p>
+<pre id="out">Result will appear here.</pre>
+<p class="note">Demo build for #BuildHybridAI (Devpost, $30,000, closes Mon Nov 30, 2026, 2:00 PM PT).
+In this offline demo slice both backends are local extractive stand-ins so the
+routing decision is visible without any API key. The production build injects
+the real Firebase AI Logic Web SDK backends (Gemini Nano on-device + cloud
+model) behind the same <code>routePrompt()</code> interface in
+<code>app.js</code> — the router itself does not change.</p>
+<script src="app.js"></script>
+<script type="module">
+// Optional real-backend loader: with a Firebase web config present, install
+// Firebase AI Logic hybrid backends; without one, app.js keeps local ones.
+import { createFirebaseBackends } from "./firebase-ai.js";
+if (window.HYBRIDNOTES_FIREBASE_CONFIG) {
+  try {
+    window.__hybridBackends = await createFirebaseBackends(window.HYBRIDNOTES_FIREBASE_CONFIG);
+    document.getElementById("route").textContent = "Firebase AI Logic hybrid backends live.";
+  } catch (e) { console.warn("Firebase backends unavailable, using local demo backends:", e && e.message); }
+}
+</script>
+</body>
+</html>
